@@ -10,15 +10,16 @@ package armconsumption
 
 import (
 	"context"
+	"net/http"
+	"strconv"
+	"strings"
+
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	armruntime "github.com/Azure/azure-sdk-for-go/sdk/azcore/arm/runtime"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/cloud"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
-	"net/http"
-	"strconv"
-	"strings"
 )
 
 // UsageDetailsClient contains the methods for the UsageDetails group.
@@ -119,7 +120,14 @@ func (client *UsageDetailsClient) listCreateRequest(ctx context.Context, scope s
 	if options != nil && options.Top != nil {
 		reqQP.Set("$top", strconv.FormatInt(int64(*options.Top), 10))
 	}
-	reqQP.Set("api-version", "2021-10-01")
+	// startDate and endDate support
+	if options != nil && options.StartDate != nil {
+		reqQP.Set("startDate", *options.StartDate)
+	}
+	if options != nil && options.EndDate != nil {
+		reqQP.Set("endDate", *options.EndDate)
+	}
+	reqQP.Set("api-version", "2019-10-01")
 	if options != nil && options.Metric != nil {
 		reqQP.Set("metric", string(*options.Metric))
 	}
